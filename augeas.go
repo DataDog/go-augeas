@@ -356,6 +356,27 @@ func (a Augeas) Move(source, destination string) error {
 	return nil
 }
 
+// Copy the node source to destination
+// source must match exactly one node in the tree.
+// destination must either match exactly one node in the tree, or may not exist yet.
+// If destination exists already, it and all its descendants are deleted. 
+// If destination does not exist yet, it and all its missing ancestors are created.
+func (a Augeas) Copy(source, destination string) error {
+	cSource := C.CString(source)
+	defer C.free(unsafe.Pointer(cSource))
+
+	cDestination := C.CString(destination)
+	defer C.free(unsafe.Pointer(cDestination))
+
+	ret := C.aug_cp(a.handle, cSource, cDestination)
+
+	if ret == -1 {
+		return a.error()
+	}
+
+	return nil
+}
+
 // Match returns all paths matching a given path. The returned paths
 // are sufficiently qualified to make sure that they match exactly one
 // node in the current tree.
